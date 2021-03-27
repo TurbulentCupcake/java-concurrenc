@@ -1,8 +1,14 @@
 package com.adi.concurrency;
 
-public class SleepMessages {
-    public static void main(String args[])
-            throws InterruptedException {
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SleepMessages implements Runnable {
+
+    public static final Logger log = LoggerFactory.getLogger(SleepMessages.class);
+
+    public void run() {
         String importantInfo[] = {
                 "Mares eat oats",
                 "Does eat oats",
@@ -14,9 +20,14 @@ public class SleepMessages {
              i < importantInfo.length;
              i++) {
             //Pause for 4 seconds
-            Thread.sleep(4000);
+            try {
+                Thread.sleep(000);
+            } catch (InterruptedException ex) {
+                log.warn("Thread was interrupted.Returning now");
+                return;
+            }
             //Print a message
-            System.out.println(importantInfo[i]);
+            log.info("Sleep messages says: " + importantInfo[i]);
         }
     }
 }

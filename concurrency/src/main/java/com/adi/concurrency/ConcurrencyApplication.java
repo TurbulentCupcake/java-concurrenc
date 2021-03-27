@@ -18,7 +18,14 @@ public class ConcurrencyApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		log.info("Application started! ");
-		Thread t = new HelloThread();
+
+		log.info("Run sleep messags");
+		Thread t = new Thread(new SleepMessages());
 		t.start();
+
+		Thread.sleep(5000);
+		log.info("Try to interrupt the sleep messages thread");
+		t.interrupt();
+
 	}
 }
