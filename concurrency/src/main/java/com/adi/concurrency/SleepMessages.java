@@ -21,7 +21,7 @@ public class SleepMessages implements Runnable {
              i++) {
             //Pause for 4 seconds
             try {
-                Thread.sleep(000);
+                Thread.sleep(4000);
             } catch (InterruptedException ex) {
                 log.warn("Thread was interrupted.Returning now");
                 return;
