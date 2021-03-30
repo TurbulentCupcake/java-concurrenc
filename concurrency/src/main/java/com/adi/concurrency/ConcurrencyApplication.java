@@ -21,11 +21,21 @@ public class ConcurrencyApplication implements CommandLineRunner {
 
 		Counter counter = new Counter();
 
+		boolean f = false;
+
 		Runnable r = new Runnable() {
 			@Override
-			public void run() {
-				for(int i = 0 ; i < 10000 ; i ++) {
-					counter.increment();
+			public void run()  {
+				try {
+					synchronized (this) {
+						log.info("Gonna wait now");
+						while(!f) {
+							wait();
+						}
+						log.info("Woke up!");
+					}
+				} catch (InterruptedException ex) {
+					log.info("Just got notified at " + Thread.currentThread().getName());
 				}
 			}
 		};
@@ -33,8 +43,15 @@ public class ConcurrencyApplication implements CommandLineRunner {
 		Runnable r2 = new Runnable() {
 			@Override
 			public void run() {
-				for(int i = 0 ; i < 10000 ; i++) {
-					counter.decrement();
+				try {
+					synchronized (this) {
+						Thread.sleep(1000);
+						notifyAll();
+						log.info("Making a notification from " + Thread.currentThread().getName());
+
+					}
+				} catch (InterruptedException ex) {
+					log.info("Got interrupted here");
 				}
 			}
 		};
