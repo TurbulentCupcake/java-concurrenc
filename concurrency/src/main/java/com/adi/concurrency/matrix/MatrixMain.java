@@ -25,10 +25,13 @@ public class MatrixMain {
 //        ArrayList<ArrayList<Integer>> m1 = initializedRandom2DArray(numRows, numCols);
 //        ArrayList<ArrayList<Integer>> m2 = initializedRandom2DArray(numRows, numCols);
 
+        // 1 x 2 matrix -> [1, 2]
         System.out.println("Creating matrix 1");
         int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
         System.out.println("Matrix 1 created");
 
+        // 2 x 1 matrix -> [1,
+        //                  2]
         System.out.println("Creating matrix 2");
         int [] m2IntArray = initializeRandom2DintArray(numRows, numCols);
         System.out.println("Matrix 2 created");

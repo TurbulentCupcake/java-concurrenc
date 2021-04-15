@@ -49,7 +49,8 @@ public class MatrixMethods {
         }
     }
 
-    public static void addImprovementOne(int[] m1, int[] m2, int[] result, int numRows, int numCols, ExecutorService executorService, int numThreads) {
+    public static void addImprovementOne(
+            int[] m1, int[] m2, int[] result, int numRows, int numCols, ExecutorService executorService, int numThreads) {
 
         // obtain number of processors  on this machine
         int numProcessors = numThreads;
@@ -90,8 +91,74 @@ public class MatrixMethods {
             executorService.execute(runnable);
         }
 
+    }
+
+    public static void multiply(
+            int[] m1,
+            int[] m2,
+            int m1NumRows,
+            int m1NumCols,
+            int m2NumRows,
+            int m2NumCols,
+            ExecutorService executorService,
+            int numThreads) throws Exception {
+
+        if(m1NumCols != m2NumRows) {
+            throw new Exception("Row-col match constraint violated");
+        }
+
+        int[] result = new int[m1NumRows * m2NumCols];
+
+
+
 
 
     }
+
+    public static void transpose(int[] m, int numRows, int numCols) {
+
+        int valueCount = numRows * numCols;
+        int nByteVars = valueCount/Byte.SIZE + 1;
+        byte[] visitedArray = new byte[nByteVars];
+
+        // the first and last positions in the array remain constant
+        for(int i = 0 ; i < (valueCount) ; i++) {
+            if(i == 0 ||  i == valueCount-1) continue; // first and last positions stay
+
+            int pos = i/Byte.SIZE; // locate the position at which the byte for this array is located
+            if( (visitedArray[pos] & 1 << (i%Byte.SIZE)) == 0) {
+                int firstPos, prevPos = i;
+                int nextPos = getNextPosition(numCols, i, valueCount);
+                int v1 = m[prevPos];
+                int v2 = m[nextPos];
+                int temp = 0;
+                while(true) { // replace with more concrete condition
+
+                    // fix value
+                    m[nextPos] = v1;
+
+                    // compute next position
+                    prevPos = nextPos;
+                    nextPos = getNextPosition(numCols, nextPos, valueCount);
+
+                    // do the swap
+                    temp = v2;
+                    v2 = m[nextPos];
+                    v1 = temp;
+                    if(v1 == v2) break; // not a concrete condition
+                }
+
+            }
+        }
+
+
+    }
+
+
+    private static int getNextPosition(int numCols, int index, int valueCount) {
+        return numCols*index % valueCount;
+    }
+
+
 
 }
