@@ -1,6 +1,7 @@
 package com.adi.concurrency.matrix;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -14,9 +15,9 @@ public class MatrixMain {
     public static void main(String args[]) throws Exception{
 
         // (5^9 * 2^9)
-        int numRows = 256*2;
-        int numCols = 1953125;
-        int numThreads = 11;
+        int numRows = 4;
+        int numCols = 2;
+        int numThreads = 1;
 
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 //
@@ -25,49 +26,37 @@ public class MatrixMain {
 //        ArrayList<ArrayList<Integer>> m1 = initializedRandom2DArray(numRows, numCols);
 //        ArrayList<ArrayList<Integer>> m2 = initializedRandom2DArray(numRows, numCols);
 
-        // 1 x 2 matrix -> [1, 2]
         System.out.println("Creating matrix 1");
-        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
+//        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
+        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
         System.out.println("Matrix 1 created");
 
-        // 2 x 1 matrix -> [1,
-        //                  2]
-        System.out.println("Creating matrix 2");
-        int [] m2IntArray = initializeRandom2DintArray(numRows, numCols);
-        System.out.println("Matrix 2 created");
 
-        int [] results = new int[numCols * numRows];
+//        System.out.println("Creating matrix 2");
+//        int [] m2IntArray = initializeRandom2DintArray(numRows, numCols);
+//        System.out.println("Matrix 2 created");
 
-//        // initialize result matrix
-//        ArrayList<ArrayList<Integer>> v = new ArrayList();
-//        for(int i = 0; i < numCols ; i++) {
-//            ArrayList<Integer> vM = new ArrayList<>();
-//            for(int j = 0 ; j < numRows ; j++) vM.add(0);
-//            v.add(vM);
-//        }
+//        int [] results = new int[numCols * numRows];
+
+
 
         Instant start = Instant.now();
 
-        MatrixMethods.addImprovementOne(
-                m1IntArray,
-                m2IntArray,
-                results,
-                numRows,
-                numCols,
-                executorService,
-                numThreads);
-
-//        MatrixMethods.addSlow(
-//                m1,
-//                m2,
-//                v,
+//        MatrixMethods.addImprovementOne(
+//                m1IntArray,
+//                m2IntArray,
+//                results,
 //                numRows,
 //                numCols,
-//                executorService
-//        );
+//                executorService,
+//                numThreads);
 
-        executorService.shutdown();
-        executorService.awaitTermination(1000, TimeUnit.MINUTES);
+        MatrixMethods.transpose(m1IntArray, numRows, numCols);
+
+        System.out.println(Arrays.toString(m1IntArray));
+
+//        executorService.shutdown();
+//        executorService.awaitTermination(1000, TimeUnit.MINUTES);
 
         long diff = Instant.now().toEpochMilli() - start.toEpochMilli();
 

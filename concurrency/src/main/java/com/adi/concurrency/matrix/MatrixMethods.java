@@ -115,6 +115,16 @@ public class MatrixMethods {
 
     }
 
+    /**
+     * Performs in-place matrix transpose by locating cycles
+     * in the matrix using method outlined here: https://en.wikipedia.org/wiki/In-place_matrix_transposition
+     * While performing the in-place transpose, we use a "scratch" byte array of size numCols*numRows/8
+     * to keep track of visited elements in the matrix.
+     * For a full description: <link to eventual blog post>
+     * @param m
+     * @param numRows
+     * @param numCols
+     */
     public static void transpose(int[] m, int numRows, int numCols) {
 
         int valueCount = numRows * numCols;
@@ -122,31 +132,35 @@ public class MatrixMethods {
         byte[] visitedArray = new byte[nByteVars];
 
         // the first and last positions in the array remain constant
-        for(int i = 0 ; i < (valueCount) ; i++) {
-            if(i == 0 ||  i == valueCount-1) continue; // first and last positions stay
+        // we determine a potential cycle for each element.
+        for(int i = 1 ; i < (valueCount-1) ; i++) {
 
-            int pos = i/Byte.SIZE; // locate the position at which the byte for this array is located
-            if( (visitedArray[pos] & 1 << (i%Byte.SIZE)) == 0) {
-                int firstPos, prevPos = i;
-                int nextPos = getNextPosition(numCols, i, valueCount);
-                int v1 = m[prevPos];
+            int bytePos = i/Byte.SIZE; // locate the position at which the byte for this array is located
+            if((visitedArray[bytePos] & 1 << (i%Byte.SIZE)) == 0) {
+                int firstPos = i;
+                int nextPos = getNextPosition(numCols, firstPos, valueCount);
+                int terminalPos = nextPos;
+                int v1 = m[firstPos];
                 int v2 = m[nextPos];
                 int temp = 0;
-                while(true) { // replace with more concrete condition
+                do { // replace with more concrete condition
 
                     // fix value
                     m[nextPos] = v1;
 
+                    // set nextPos bit in visitedArray
+                    bytePos = nextPos/Byte.SIZE;
+                    visitedArray[bytePos] |= 1 << (nextPos%Byte.SIZE);
+
                     // compute next position
-                    prevPos = nextPos;
                     nextPos = getNextPosition(numCols, nextPos, valueCount);
 
                     // do the swap
                     temp = v2;
                     v2 = m[nextPos];
                     v1 = temp;
-                    if(v1 == v2) break; // not a concrete condition
-                }
+
+                } while (nextPos != terminalPos);
 
             }
         }
@@ -155,8 +169,15 @@ public class MatrixMethods {
     }
 
 
+    /**
+     * Gets the next position in the cycle
+     * @param numCols
+     * @param index
+     * @param valueCount
+     * @return
+     */
     private static int getNextPosition(int numCols, int index, int valueCount) {
-        return numCols*index % valueCount;
+        return numCols*index % (valueCount-1);
     }
 
 
