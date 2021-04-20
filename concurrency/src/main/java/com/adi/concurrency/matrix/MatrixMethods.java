@@ -1,6 +1,7 @@
 package com.adi.concurrency.matrix;
 
 
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -127,10 +128,14 @@ public class MatrixMethods {
      */
     public static void transpose(int[] m, int numRows, int numCols) {
 
+
         int valueCount = numRows * numCols;
+        System.out.println("size of valueCount " + valueCount);
+        assert valueCount == m.length;
+
         int nByteVars = valueCount/Byte.SIZE + 1;
         byte[] visitedArray = new byte[nByteVars];
-
+        int[] visitedCount = new int[valueCount];
         // the first and last positions in the array remain constant
         // we determine a potential cycle for each element.
         for(int i = 1 ; i < (valueCount-1) ; i++) {
@@ -151,6 +156,7 @@ public class MatrixMethods {
                     // set nextPos bit in visitedArray
                     bytePos = nextPos/Byte.SIZE;
                     visitedArray[bytePos] |= 1 << (nextPos%Byte.SIZE);
+                    visitedCount[nextPos]++;
 
                     // compute next position
                     nextPos = getNextPosition(numCols, nextPos, valueCount);
@@ -162,6 +168,12 @@ public class MatrixMethods {
 
                 } while (nextPos != terminalPos);
 
+            }
+        }
+
+        for(int i = 0 ; i < valueCount ; i++) {
+            if(visitedCount[i] > 1) {
+                System.out.println("Location [" + i + "] was visited ["+ visitedCount[i] + "] times");
             }
         }
 
@@ -177,7 +189,29 @@ public class MatrixMethods {
      * @return
      */
     private static int getNextPosition(int numCols, int index, int valueCount) {
-        return numCols*index % (valueCount-1);
+
+        try {
+            int product = Math.multiplyExact(numCols, index);
+            return product % (valueCount - 1);
+        } catch (ArithmeticException e) {
+
+            // overflow case -- switch to using BigInteger -- gonna take a performance hit here
+            BigInteger numColsBigInt = new BigInteger(String.valueOf(numCols));
+            BigInteger indexBigInt = new BigInteger(String.valueOf(index));
+            int t = valueCount - 1;
+            BigInteger valCountBigInt = new BigInteger(String.valueOf(t));
+
+            BigInteger productBigInt = numColsBigInt.multiply(indexBigInt);
+            BigInteger posBigInt = productBigInt.mod(valCountBigInt);
+
+            /*
+                this returned value HAS to be less than (valueCount - 1).
+                If it can be modded by valueCount - 1, which could fit in an int
+                then the modded value can also fit in an int
+             */
+            return posBigInt.intValue();
+        }
+
     }
 
 
