@@ -53,7 +53,7 @@ public class MatrixMain {
 //                executorService,
 //                numThreads);
 
-        MatrixMethods.transpose(m1IntArray, numRows, numCols);
+        MatrixMethods.transpose(m1IntArray, numRows, numCols, numThreads, executorService);
 
         System.out.println(Arrays.toString(m1IntArray));
 

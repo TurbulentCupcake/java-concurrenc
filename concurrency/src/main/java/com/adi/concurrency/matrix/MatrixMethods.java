@@ -110,10 +110,6 @@ public class MatrixMethods {
 
         int[] result = new int[m1NumRows * m2NumCols];
 
-
-
-
-
     }
 
     /**
@@ -126,19 +122,46 @@ public class MatrixMethods {
      * @param numRows
      * @param numCols
      */
-    public static void transpose(int[] m, int numRows, int numCols) {
+    public static void transpose(int[] m, int numRows, int numCols, int numThreads, ExecutorService executorService) {
 
 
         int valueCount = numRows * numCols;
         System.out.println("size of valueCount " + valueCount);
         assert valueCount == m.length;
 
+        // mark array creation
         int nByteVars = valueCount/Byte.SIZE + 1;
         byte[] visitedArray = new byte[nByteVars];
-        int[] visitedCount = new int[valueCount];
+
+        ArrayList<Runnable> runnables = new ArrayList<>();
+        int numValuesPerRunnable = valueCount / numThreads;
+
+        // create a new runnable for each chunk
+        int i;
+        for(i = 0 ; i < valueCount ; i = i + numValuesPerRunnable) {
+            int finalI = i;
+            runnables.add(() ->
+                transposeChunk(m, numCols, valueCount, visitedArray, finalI, finalI + numValuesPerRunnable)
+            );
+        }
+
+        // create a single runnable for the remaining chunk
+        int finalI1 = i; // i  at this point would be at the last position that i was incrememnted by
+        runnables.add(() ->
+            transposeChunk(m, numCols, valueCount, visitedArray, finalI1, valueCount)
+        );
+
+        for(Runnable r : runnables) {
+            executorService.execute(r);
+        }
+
+
+    }
+
+    private static void transposeChunk(int[] m, int numCols, int valueCount, byte[] visitedArray, int start, int end) {
         // the first and last positions in the array remain constant
         // we determine a potential cycle for each element.
-        for(int i = 1 ; i < (valueCount-1) ; i++) {
+        for(int i = start ; i < end ; i++) { // <- split work into several runnables.
 
             int bytePos = i/Byte.SIZE; // locate the position at which the byte for this array is located
             if((visitedArray[bytePos] & 1 << (i%Byte.SIZE)) == 0) {
@@ -156,7 +179,6 @@ public class MatrixMethods {
                     // set nextPos bit in visitedArray
                     bytePos = nextPos/Byte.SIZE;
                     visitedArray[bytePos] |= 1 << (nextPos%Byte.SIZE);
-                    visitedCount[nextPos]++;
 
                     // compute next position
                     nextPos = getNextPosition(numCols, nextPos, valueCount);
@@ -170,14 +192,6 @@ public class MatrixMethods {
 
             }
         }
-
-        for(int i = 0 ; i < valueCount ; i++) {
-            if(visitedCount[i] > 1) {
-                System.out.println("Location [" + i + "] was visited ["+ visitedCount[i] + "] times");
-            }
-        }
-
-
     }
 
 
