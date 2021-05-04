@@ -15,8 +15,6 @@ public class MatrixMain {
     public static void main(String args[]) throws Exception{
 
         // (5^9 * 2^9)
-//        int numRows = 512;
-//        int numCols = 1953125;
         int numRows = 4;
         int numCols = 2;
         int numThreads = 1;
@@ -25,13 +23,13 @@ public class MatrixMain {
 //
         System.out.println("Size of integer: " + Integer.BYTES);
         System.out.println("Largest integer:  " + Integer.MAX_VALUE);
-        System.out.println("Largest long: " + Long.MAX_VALUE);
+//        ArrayList<ArrayList<Integer>> m1 = initializedRandom2DArray(numRows, numCols);
+//        ArrayList<ArrayList<Integer>> m2 = initializedRandom2DArray(numRows, numCols);
 
         System.out.println("Creating matrix 1");
-        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
-//        int []  m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
-
-        System.out.println("Matrix 1 created");
+//        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
+        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
+        System.out.println("Matrix 1 created: " + Arrays.toString(m1IntArray));
 
 
 //        System.out.println("Creating matrix 2");
@@ -43,7 +41,7 @@ public class MatrixMain {
 
 
         Instant start = Instant.now();
-//
+
 //        MatrixMethods.addImprovementOne(
 //                m1IntArray,
 //                m2IntArray,
@@ -55,10 +53,10 @@ public class MatrixMain {
 
         MatrixMethods.transpose(m1IntArray, numRows, numCols, numThreads, executorService);
 
-        System.out.println(Arrays.toString(m1IntArray));
+        executorService.shutdown();
+        executorService.awaitTermination(1000, TimeUnit.MINUTES);
 
-//        executorService.shutdown();
-//        executorService.awaitTermination(1000, TimeUnit.MINUTES);
+        System.out.println(Arrays.toString(m1IntArray));
 
         long diff = Instant.now().toEpochMilli() - start.toEpochMilli();
 

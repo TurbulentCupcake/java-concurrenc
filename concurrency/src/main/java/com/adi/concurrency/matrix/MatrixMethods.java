@@ -1,7 +1,6 @@
 package com.adi.concurrency.matrix;
 
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -110,6 +109,10 @@ public class MatrixMethods {
 
         int[] result = new int[m1NumRows * m2NumCols];
 
+
+
+
+
     }
 
     /**
@@ -124,47 +127,25 @@ public class MatrixMethods {
      */
     public static void transpose(int[] m, int numRows, int numCols, int numThreads, ExecutorService executorService) {
 
-
         int valueCount = numRows * numCols;
-        System.out.println("size of valueCount " + valueCount);
-        assert valueCount == m.length;
-
-        // mark array creation
         int nByteVars = valueCount/Byte.SIZE + 1;
         byte[] visitedArray = new byte[nByteVars];
 
-        ArrayList<Runnable> runnables = new ArrayList<>();
-        int numValuesPerRunnable = valueCount / numThreads;
+        Runnable r = () -> transposeChunk(m, numCols, valueCount, visitedArray, 1 , valueCount - 1);
 
-        // create a new runnable for each chunk
-        int i;
-        for(i = 0 ; i < valueCount ; i = i + numValuesPerRunnable) {
-            int finalI = i;
-            runnables.add(() ->
-                transposeChunk(m, numCols, valueCount, visitedArray, finalI, finalI + numValuesPerRunnable)
-            );
-        }
-
-        // create a single runnable for the remaining chunk
-        int finalI1 = i; // i  at this point would be at the last position that i was incrememnted by
-        runnables.add(() ->
-            transposeChunk(m, numCols, valueCount, visitedArray, finalI1, valueCount)
-        );
-
-        for(Runnable r : runnables) {
-            executorService.execute(r);
-        }
+        executorService.execute(r);
+        // the first and last positions in the array remain constant
+        // we determine a potential cycle for each element.
 
 
     }
 
     private static void transposeChunk(int[] m, int numCols, int valueCount, byte[] visitedArray, int start, int end) {
-        // the first and last positions in the array remain constant
-        // we determine a potential cycle for each element.
-        for(int i = start ; i < end ; i++) { // <- split work into several runnables.
+
+        for(int i = start; i < end ; i++) {
 
             int bytePos = i/Byte.SIZE; // locate the position at which the byte for this array is located
-            if((visitedArray[bytePos] & 1 << (i%Byte.SIZE)) == 0) {
+            if((visitedArray[bytePos] & (1 << (i%Byte.SIZE))) == 0) {
                 int firstPos = i;
                 int nextPos = getNextPosition(numCols, firstPos, valueCount);
                 int terminalPos = nextPos;
@@ -178,7 +159,7 @@ public class MatrixMethods {
 
                     // set nextPos bit in visitedArray
                     bytePos = nextPos/Byte.SIZE;
-                    visitedArray[bytePos] |= 1 << (nextPos%Byte.SIZE);
+                    visitedArray[bytePos] |= (1 << (nextPos%Byte.SIZE));
 
                     // compute next position
                     nextPos = getNextPosition(numCols, nextPos, valueCount);
@@ -203,29 +184,7 @@ public class MatrixMethods {
      * @return
      */
     private static int getNextPosition(int numCols, int index, int valueCount) {
-
-        try {
-            int product = Math.multiplyExact(numCols, index);
-            return product % (valueCount - 1);
-        } catch (ArithmeticException e) {
-
-            // overflow case -- switch to using BigInteger -- gonna take a performance hit here
-            BigInteger numColsBigInt = new BigInteger(String.valueOf(numCols));
-            BigInteger indexBigInt = new BigInteger(String.valueOf(index));
-            int t = valueCount - 1;
-            BigInteger valCountBigInt = new BigInteger(String.valueOf(t));
-
-            BigInteger productBigInt = numColsBigInt.multiply(indexBigInt);
-            BigInteger posBigInt = productBigInt.mod(valCountBigInt);
-
-            /*
-                this returned value HAS to be less than (valueCount - 1).
-                If it can be modded by valueCount - 1, which could fit in an int
-                then the modded value can also fit in an int
-             */
-            return posBigInt.intValue();
-        }
-
+        return numCols*index % (valueCount-1);
     }
 
 
