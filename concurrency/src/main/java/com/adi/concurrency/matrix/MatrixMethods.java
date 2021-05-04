@@ -134,20 +134,32 @@ public class MatrixMethods {
 
         List<Runnable> runnables = new ArrayList<>();
         if(numThreads == 1) {
-
-            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, 1, valueCount - 1));
-
+            int end = valueCount - 1;
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, 1, end));
         } else if (numThreads == 2) {
-
             int split = valueCount/numThreads;
+            int end = valueCount - 1;
             runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, 1 , split));
-            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, split , valueCount - 1));
-
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, split , end));
         } else {
 
+            int numPerRunnable = valueCount/numThreads;
 
+            int firstIdx = 1;
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, firstIdx , numPerRunnable));
 
+            int endBeginIdx = valueCount - numPerRunnable;
+            int endEndIdx = valueCount - 1;
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, endBeginIdx , endEndIdx));
 
+            int start = numPerRunnable;
+            int end = valueCount - numPerRunnable;
+            while(start < end) {
+                int finalStart = start;
+                int finalEnd = start + numPerRunnable;
+                runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, finalStart , finalEnd));
+                start += numPerRunnable;
+            }
         }
 
         runnables.forEach(executorService::execute);

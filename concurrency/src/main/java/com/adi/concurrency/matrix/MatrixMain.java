@@ -15,9 +15,9 @@ public class MatrixMain {
     public static void main(String args[]) throws Exception{
 
         // (5^9 * 2^9)
-        int numRows = 4;
-        int numCols = 2;
-        int numThreads = 2;
+        int numRows = 10;
+        int numCols = 10;
+        int numThreads = 4;
 
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 //
@@ -27,8 +27,8 @@ public class MatrixMain {
 //        ArrayList<ArrayList<Integer>> m2 = initializedRandom2DArray(numRows, numCols);
 
         System.out.println("Creating matrix 1");
-//        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols);
-        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
+        int [] m1IntArray = initializeRandom2DintArray(numRows, numCols, 1);
+//        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
         System.out.println("Matrix 1 created: " + Arrays.toString(m1IntArray));
 
 
@@ -82,12 +82,12 @@ public class MatrixMain {
 
     }
 
-    private static int [] initializeRandom2DintArray(int numRows, int numCols) {
+    private static int [] initializeRandom2DintArray(int numRows, int numCols, int seed) {
 
         // create an int array
         int [] vM = new int[numCols * numRows];
 
-        Random r = new Random(Instant.now().toEpochMilli());
+        Random r = new Random(seed);
         for(int i = 0 ; i < numCols ; i++) {
             for(int j = 0 ; j < numRows ; j++) {
                 vM[(i*numRows) + j] = r.nextInt(10);
