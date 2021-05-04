@@ -3,6 +3,7 @@ package com.adi.concurrency.matrix;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class MatrixMethods {
@@ -131,12 +132,25 @@ public class MatrixMethods {
         int nByteVars = valueCount/Byte.SIZE + 1;
         byte[] visitedArray = new byte[nByteVars];
 
-        Runnable r = () -> transposeChunk(m, numCols, valueCount, visitedArray, 1 , valueCount - 1);
+        List<Runnable> runnables = new ArrayList<>();
+        if(numThreads == 1) {
 
-        executorService.execute(r);
-        // the first and last positions in the array remain constant
-        // we determine a potential cycle for each element.
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, 1, valueCount - 1));
 
+        } else if (numThreads == 2) {
+
+            int split = valueCount/numThreads;
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, 1 , split));
+            runnables.add(() -> transposeChunk(m, numCols, valueCount, visitedArray, split , valueCount - 1));
+
+        } else {
+
+
+
+
+        }
+
+        runnables.forEach(executorService::execute);
 
     }
 

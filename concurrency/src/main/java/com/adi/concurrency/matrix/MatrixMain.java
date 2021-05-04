@@ -17,7 +17,7 @@ public class MatrixMain {
         // (5^9 * 2^9)
         int numRows = 4;
         int numCols = 2;
-        int numThreads = 1;
+        int numThreads = 2;
 
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 //
