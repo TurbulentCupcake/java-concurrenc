@@ -29,7 +29,8 @@ public class MatrixMain {
         System.out.println("Creating matrix 1");
         int [] m1IntArray = initializeRandom2DintArray(numRows, numCols, 1);
 //        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
-        System.out.println("Matrix 1 created: " + Arrays.toString(m1IntArray));
+        System.out.println("Matrix 1 created: ");
+        printMatrix(m1IntArray, numCols, numRows);
 
 
 //        System.out.println("Creating matrix 2");
@@ -56,8 +57,8 @@ public class MatrixMain {
         executorService.shutdown();
         executorService.awaitTermination(1000, TimeUnit.MINUTES);
 
-        System.out.println(Arrays.toString(m1IntArray));
-
+        System.out.println("Transposed matrix");
+        printMatrix(m1IntArray, numCols, numRows);
         long diff = Instant.now().toEpochMilli() - start.toEpochMilli();
 
         System.out.println("Time taken [ms] = " + diff);
@@ -96,5 +97,17 @@ public class MatrixMain {
 
         return vM;
 
+    }
+
+
+    private static void printMatrix(int [] m, int numCols, int numRows) {
+        int valueCount = numCols * numRows;
+        for(int start = 0; start < numRows ; start++) {
+            System.out.print("|");
+            for(int i = start ; i < valueCount ; i += numRows) {
+                System.out.print(String.format(" %d", m[i]));
+            }
+            System.out.println(" |");
+        }
     }
 }
