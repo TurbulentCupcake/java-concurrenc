@@ -1,5 +1,7 @@
 package com.adi.concurrency.matrix;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Random;
@@ -15,10 +17,13 @@ public class MatrixMain {
     public static void main(String args[]) throws Exception{
 
         // (5^9 * 2^9)
-        int numRows = 10;
-        int numCols = 10;
+        int numRows = 10000;
+        int numCols = 1000;
         int numThreads = 4;
+        boolean print = false;
+        boolean printToFile = false;
 
+        if(printToFile) System.setOut(new PrintStream(new File("outfile.txt")));
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 //
         System.out.println("Size of integer: " + Integer.BYTES);
@@ -29,8 +34,8 @@ public class MatrixMain {
         System.out.println("Creating matrix 1");
         int [] m1IntArray = initializeRandom2DintArray(numRows, numCols, 1);
 //        int[] m1IntArray = {11, 12, 13, 14, 21, 22, 23, 24};
-        System.out.println("Matrix 1 created: ");
-        printMatrix(m1IntArray, numCols, numRows);
+//        System.out.println("Matrix 1 created: "  + Arrays.toString(m1IntArray));
+        if(print) printMatrix(m1IntArray, numCols, numRows);
 
 
 //        System.out.println("Creating matrix 2");
@@ -58,7 +63,7 @@ public class MatrixMain {
         executorService.awaitTermination(1000, TimeUnit.MINUTES);
 
         System.out.println("Transposed matrix");
-        printMatrix(m1IntArray, numCols, numRows);
+        if(print) printMatrix(m1IntArray, numRows, numCols);
         long diff = Instant.now().toEpochMilli() - start.toEpochMilli();
 
         System.out.println("Time taken [ms] = " + diff);

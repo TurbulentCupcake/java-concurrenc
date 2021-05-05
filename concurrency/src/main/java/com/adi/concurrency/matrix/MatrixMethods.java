@@ -1,6 +1,7 @@
 package com.adi.concurrency.matrix;
 
 
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,7 +211,27 @@ public class MatrixMethods {
      * @return
      */
     private static int getNextPosition(int numCols, int index, int valueCount) {
-        return numCols*index % (valueCount-1);
+        try {
+            int product = Math.multiplyExact(numCols, index);
+            return product % (valueCount - 1);
+        } catch (ArithmeticException e) {
+
+            // overflow case -- switch to using BigInteger -- gonna take a performance hit here
+            BigInteger numColsBigInt = new BigInteger(String.valueOf(numCols));
+            BigInteger indexBigInt = new BigInteger(String.valueOf(index));
+            int t = valueCount - 1;
+            BigInteger valCountBigInt = new BigInteger(String.valueOf(t));
+
+            BigInteger productBigInt = numColsBigInt.multiply(indexBigInt);
+            BigInteger posBigInt = productBigInt.mod(valCountBigInt);
+
+            /*
+                this returned value HAS to be less than (valueCount - 1).
+                If it can be modded by valueCount - 1, which could fit in an int
+                then the modded value can also fit in an int
+             */
+            return posBigInt.intValue();
+        }
     }
 
 
