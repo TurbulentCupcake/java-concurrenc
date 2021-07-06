@@ -12,6 +12,13 @@ public class WaitNotifyExperiementation {
     public static void main(String args[]) {
 
 
+        /*
+            calling wait() release the lock, so any thread using synchronized and waiting for the
+            lock could acquire it. However, remember that just because you notify doesn't mean that
+            the lock gets released. The thread owning the lock and calling notify has to complete
+            its computation and release the lock for it to be acquired either by the thread that
+            called wait() or the thread waiting on the synchronized(o);
+         */
         Object o = new Object();
 
         Thread [] consumers = new Thread[NUM_THREADS];
@@ -25,7 +32,7 @@ public class WaitNotifyExperiementation {
                     try {
                         synchronized (o) {
                             System.out.println(Thread.currentThread().getName() + " going to wait for object lock ");
-                            o.wait();
+                            o.wait(); // WAIT RELEASES LOCK
                             System.out.println("Woke up! " + Thread.currentThread().getName());
                         }
                     } catch (InterruptedException ex) {
